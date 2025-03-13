@@ -56,26 +56,14 @@ app.use((req, res, next) => {
     serveStatic(app);
   }
 
-  // ALWAYS serve the app on port 5000
-  // this serves both the API and the client.
-  // It is the only port that is not firewalled.
-  // Try with port 5000 first, fallback to another if in use
-  const tryPort = (port) => {
-    server.listen({
-      port,
-      host: "0.0.0.0", // Modified to listen on all interfaces
-      reusePort: true,
-    }, () => {
-      log(`serving on port ${port}`);
-    }).on('error', (err) => {
-      if (err.code === 'EADDRINUSE') {
-        log(`Port ${port} is in use, trying ${port + 1}`);
-        tryPort(port + 1);
-      } else {
-        log(`Error starting server: ${err.message}`);
-      }
-    });
-  };
+  // Use PORT from environment variable (for Railway) or default to 5000
+  const port = process.env.PORT || 5000;
   
-  tryPort(5000);
+  server.listen({
+    port,
+    host: "0.0.0.0", // Listen on all interfaces
+    reusePort: true,
+  }, () => {
+    log(`serving on port ${port}`);
+  });
 })();
